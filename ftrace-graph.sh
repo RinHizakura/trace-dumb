@@ -13,29 +13,29 @@ case $CMD in
         sudo sh -c "echo 1 > $SYSFS_TRACE/tracing_on"
         ;;
     filter)
-         sudo sh -c "echo $PARM1 > $SYSFS/set_ftrace_filter"
+         sudo sh -c "echo $PARM1 > $SYSFS_TRACE/set_ftrace_filter"
          ;;
     append-filter)
-         sudo sh -c "echo $PARM1 >> $SYSFS/set_ftrace_filter"
+         sudo sh -c "echo $PARM1 >> $SYSFS_TRACE/set_ftrace_filter"
          ;;
     nofilter)
-         sudo sh -c "echo $PARM1 > $SYSFS/set_ftrace_notrace"
+         sudo sh -c "echo $PARM1 > $SYSFS_TRACE/set_ftrace_notrace"
          ;;
     append-nofilter)
-         sudo sh -c "echo $PARM1 >> $SYSFS/set_ftrace_notrace"
+         sudo sh -c "echo $PARM1 >> $SYSFS_TRACE/set_ftrace_notrace"
          ;;
     list-func)
-        sudo cat $SYSFS/available_filter_functions
+        sudo cat $SYSFS_TRACE/available_filter_functions
         ;;
     report)
-        sudo cat $SYSFS/trace
+        sudo cat $SYSFS_TRACE/trace
         ;;
     stop)
         sudo sh -c "echo 0 > $SYSFS_TRACE/tracing_on"
         sudo sh -c "echo nop > $SYSFS_TRACE/current_tracer"
         ;;
     clean)
-        sudo sh -c "echo 0 > $SYSFS/trace"
+        sudo sh -c "echo 0 > $SYSFS_TRACE/trace"
         ;;
     *)
         echo "Invalid command $CMD"
