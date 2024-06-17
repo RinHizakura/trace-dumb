@@ -30,6 +30,7 @@ wait $CPID
 root_run "echo 0 > tracing_on"
 
 # Cleanup the change of ftrace-cmd
+root_run "echo nop > current_tracer"
 root_run "echo > set_ftrace_pid"
 root_run "echo nofunction-fork > trace_options"
 echo "Done. Please 'sudo cat $SYSFS_TRACE/trace' for the result"
