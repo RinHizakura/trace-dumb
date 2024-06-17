@@ -2,6 +2,7 @@
 
 CMD=$@
 SYSFS_TRACE=/sys/kernel/debug/tracing
+OUTPUT=/tmp/trace_log
 
 function root_run()
 {
@@ -29,8 +30,11 @@ root_run "echo 1 > tracing_on"
 wait $CPID
 root_run "echo 0 > tracing_on"
 
+# Output result
+root_run "cat trace > $OUTPUT"
+echo "Done. Please 'sudo cat $OUTPUT' for the result"
+
 # Cleanup the change of ftrace-cmd
 root_run "echo nop > current_tracer"
 root_run "echo > set_ftrace_pid"
 root_run "echo nofunction-fork > trace_options"
-echo "Done. Please 'sudo cat $SYSFS_TRACE/trace' for the result"
