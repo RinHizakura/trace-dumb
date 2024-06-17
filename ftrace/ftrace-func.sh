@@ -12,8 +12,8 @@ case $CMD in
         sudo sh -c "echo 1 > $SYSFS_TRACE/tracing_on"
         ;;
     add)
-         sudo sh -c "echo $PARM1 >> $SYSFS_TRACE/set_ftrace_filter"
-         ;;
+        sudo sh -c "echo $PARM1 >> $SYSFS_TRACE/set_ftrace_filter"
+        ;;
     stack)
         sudo sh -c "echo stacktrace > $SYSFS_TRACE/trace_options"
         ;;
