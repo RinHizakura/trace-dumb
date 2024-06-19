@@ -16,16 +16,20 @@ function root_run()
     fi
 }
 
+EVENT=$SYSFS_TRACE/events/kmem
+
 # Clean the trace buffer at start
 root_run "echo 0 > $SYSFS_TRACE/trace"
 
 # Disable the trace first before we setup everything
+root_run "echo 0 >  $SYSFS_TRACE/events/enable"
 root_run "echo 0 > $SYSFS_TRACE/tracing_on"
 
 # Choose the tracer with target setting
-root_run "echo 1 >  $SYSFS_TRACE/events/enable"
+root_run "echo 1 >  $EVENT/enable"
 root_run "echo event-fork > $SYSFS_TRACE/trace_options"
-root_run "echo function > $SYSFS_TRACE/current_tracer"
+root_run "echo latency-format > $SYSFS_TRACE/trace_options"
+root_run "echo nop > $SYSFS_TRACE/current_tracer"
 
 # Enable trace and start running the command
 (sleep 5; $CMD) &
@@ -45,5 +49,6 @@ echo "Done. Please 'sudo cat $OUTPUT' for the result"
 # Cleanup the change of ftrace
 root_run "echo > $SYSFS_TRACE/set_event_pid"
 root_run "echo nop > $SYSFS_TRACE/current_tracer"
+root_run "echo nolatency-format > $SYSFS_TRACE/trace_options"
 root_run "echo noevent-fork > $SYSFS_TRACE/trace_options"
-root_run "echo 0 >  $SYSFS_TRACE/events/enable"
+root_run "echo 0 >  $EVENT/enable"
