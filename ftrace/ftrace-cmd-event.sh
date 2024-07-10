@@ -16,7 +16,20 @@ function root_run()
     fi
 }
 
-EVENT=$SYSFS_TRACE/events/kmem
+EVENT=$SYSFS_TRACE/events
+while getopts ":e:" opt
+do
+    case $opt in
+        e)
+            EVENT=$SYSFS_TRACE/events/$OPTARG;;
+        ?)
+            exit 1;;
+    esac
+done
+
+shift $(($OPTIND - 1))
+CMD=$*
+
 
 # Clean the trace buffer at start
 root_run "echo 0 > $SYSFS_TRACE/trace"
