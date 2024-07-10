@@ -18,7 +18,8 @@ function root_run()
 FUNC=
 TRACE=
 NOTRACE=
-while getopts ":f:t:n:" opt
+TRACER=
+while getopts ":f:t:n:T:" opt
 do
     case $opt in
         f)
@@ -27,6 +28,8 @@ do
             TRACE=$OPTARG;;
         n)
             NOTRACE=$OPTARG;;
+        T)
+            TRACER=$OPTARG;;
         ?)
             exit 1;;
     esac
@@ -35,6 +38,7 @@ done
 shift $(($OPTIND - 1))
 CMD=$*
 
+
 # Clean the trace buffer at start
 root_run "echo 0 > $SYSFS_TRACE/trace"
 
@@ -42,7 +46,7 @@ root_run "echo 0 > $SYSFS_TRACE/trace"
 root_run "echo 0 > $SYSFS_TRACE/tracing_on"
 
 # Choose the tracer with target setting
-root_run "echo function_graph > $SYSFS_TRACE/current_tracer"
+root_run "echo $TRACER > $SYSFS_TRACE/current_tracer"
 root_run "echo $FUNC > $SYSFS_TRACE/set_graph_function"
 root_run "echo $FUNC > $SYSFS_TRACE/set_ftrace_filter"
 root_run "echo $TRACE >> $SYSFS_TRACE/set_ftrace_filter"
