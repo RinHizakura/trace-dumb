@@ -18,7 +18,7 @@ function root_run()
 FUNC=
 TRACE=
 NOTRACE=
-TRACER=
+TRACER=function
 while getopts ":f:t:n:T:" opt
 do
     case $opt in
