@@ -11,8 +11,9 @@ fi
 FUNC=
 TRACE=
 NOTRACE=
+PID=0
 TRACER=function
-while getopts ":f:t:n:T:" opt
+while getopts ":f:t:n:T:p" opt
 do
     case $opt in
         f)
@@ -23,6 +24,8 @@ do
             NOTRACE=$OPTARG;;
         T)
             TRACER=$OPTARG;;
+        p)
+            PID=1;;
         ?)
             exit 1;;
     esac
@@ -44,7 +47,6 @@ echo $FUNC > $SYSFS_TRACE/set_graph_function
 echo $FUNC > $SYSFS_TRACE/set_ftrace_filter
 echo $TRACE >> $SYSFS_TRACE/set_ftrace_filter
 echo $NOTRACE > $SYSFS_TRACE/set_ftrace_notrace
-echo 1 > $SYSFS_TRACE/options/function-fork
 echo 1 > $SYSFS_TRACE/options/funcgraph-tail
 
 # Enable trace and start running the command
@@ -52,8 +54,13 @@ echo 1 > $SYSFS_TRACE/options/funcgraph-tail
 CPID=$!
 echo "Run command '$CMD'(ppid=$$ pid=$CPID) and enable tracing..."
 
-# Add child pid to filter to start tracing it
-echo $CPID > $SYSFS_TRACE/set_ftrace_pid
+# Extra setting to focus on the process from the command
+if [[ $PID -eq 1 ]]; then
+    # Add child pid to filter to start tracing it
+    echo $CPID > $SYSFS_TRACE/set_ftrace_pid
+    echo 1 > $SYSFS_TRACE/options/function-fork
+fi
+
 echo 1 > $SYSFS_TRACE/tracing_on
 wait $CPID
 echo 0 > $SYSFS_TRACE/tracing_on
