@@ -9,8 +9,8 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 FUNC=
-TRACE=
-NOTRACE=
+TRACE_LIST=()
+NOTRACE_LIST=()
 PID=0
 TRACER=function
 while getopts ":f:t:n:T:p" opt
@@ -19,9 +19,9 @@ do
         f)
             FUNC=$OPTARG;;
         t)
-            TRACE=$OPTARG;;
+            TRACE_LIST+=("$OPTARG");;
         n)
-            NOTRACE=$OPTARG;;
+            NOTRACE_LIST+=("$OPTARG");;
         T)
             TRACER=$OPTARG;;
         p)
@@ -43,10 +43,15 @@ echo 0 > $SYSFS_TRACE/tracing_on
 
 # Choose the tracer with target setting
 echo $TRACER > $SYSFS_TRACE/current_tracer
-echo $FUNC > $SYSFS_TRACE/set_graph_function
-echo $FUNC > $SYSFS_TRACE/set_ftrace_filter
-echo $TRACE >> $SYSFS_TRACE/set_ftrace_filter
-echo $NOTRACE > $SYSFS_TRACE/set_ftrace_notrace
+echo "$FUNC" > $SYSFS_TRACE/set_graph_function
+echo "$FUNC" > $SYSFS_TRACE/set_ftrace_filter
+for f in $TRACE_LIST; do
+    echo $f >> $SYSFS_TRACE/set_ftrace_filter
+done
+echo > $SYSFS_TRACE/set_ftrace_notrace
+for f in $NOTRACE_LIST; do
+    echo $f >> $SYSFS_TRACE/set_ftrace_notrace
+done
 echo 1 > $SYSFS_TRACE/options/funcgraph-tail
 
 # Enable trace and start running the command
