@@ -10,11 +10,14 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 EVENT=$SYSFS_TRACE/events
-while getopts ":e:" opt
+PID=0
+while getopts ":e:p" opt
 do
     case $opt in
         e)
             EVENT=$SYSFS_TRACE/events/$OPTARG;;
+        p)
+            PID=1;;
         ?)
             exit 1;;
     esac
@@ -41,8 +44,12 @@ echo nop > $SYSFS_TRACE/current_tracer
 CPID=$!
 echo "Run command '$CMD'(ppid=$$ pid=$CPID) and enable tracing..."
 
-# Add child pid to filter to start tracing it
-echo $CPID > $SYSFS_TRACE/set_event_pid
+# Extra setting to focus on the process from the command
+if [[ $PID -eq 1 ]]; then
+    # Add child pid to filter to start tracing it
+    echo $CPID > $SYSFS_TRACE/set_event_pid
+fi
+
 echo 1 > $SYSFS_TRACE/tracing_on
 wait $CPID
 echo 0 > $SYSFS_TRACE/tracing_on
