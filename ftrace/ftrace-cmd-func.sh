@@ -44,14 +44,22 @@ echo 0 > $SYSFS_TRACE/tracing_on
 # Choose the tracer with target setting
 echo $TRACER > $SYSFS_TRACE/current_tracer
 echo "$FUNC" > $SYSFS_TRACE/set_graph_function
-echo "$FUNC" > $SYSFS_TRACE/set_ftrace_filter
-for f in $TRACE_LIST; do
-    echo $f >> $SYSFS_TRACE/set_ftrace_filter
-done
+
+echo > $SYSFS_TRACE/set_ftrace_filter
+if [[ ${TRACE_LIST[@]} ]]; then
+    echo "$FUNC" > $SYSFS_TRACE/set_ftrace_filter
+    for f in $TRACE_LIST; do
+        echo $f >> $SYSFS_TRACE/set_ftrace_filter
+    done
+fi
+
 echo > $SYSFS_TRACE/set_ftrace_notrace
-for f in $NOTRACE_LIST; do
-    echo $f >> $SYSFS_TRACE/set_ftrace_notrace
-done
+if [[ ${NOTRACE_LIST[@]} ]]; then
+    for f in $NOTRACE_LIST; do
+        echo $f >> $SYSFS_TRACE/set_ftrace_notrace
+    done
+fi
+
 echo 1 > $SYSFS_TRACE/options/funcgraph-tail
 
 # Enable trace and start running the command
