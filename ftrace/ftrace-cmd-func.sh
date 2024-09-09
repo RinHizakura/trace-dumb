@@ -48,14 +48,14 @@ echo "$FUNC" > $SYSFS_TRACE/set_graph_function
 echo > $SYSFS_TRACE/set_ftrace_filter
 if [[ ${TRACE_LIST[@]} ]]; then
     echo "$FUNC" > $SYSFS_TRACE/set_ftrace_filter
-    for f in $TRACE_LIST; do
+    for f in ${TRACE_LIST[@]}; do
         echo $f >> $SYSFS_TRACE/set_ftrace_filter
     done
 fi
 
 echo > $SYSFS_TRACE/set_ftrace_notrace
 if [[ ${NOTRACE_LIST[@]} ]]; then
-    for f in $NOTRACE_LIST; do
+    for f in ${NOTRACE_LIST[@]}; do
         echo $f >> $SYSFS_TRACE/set_ftrace_notrace
     done
 fi
