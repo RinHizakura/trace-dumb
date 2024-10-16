@@ -14,7 +14,7 @@ NOTRACE_LIST=()
 PID=0
 STACK=0
 TRACER=function
-while getopts ":f:t:n:T:p" opt
+while getopts ":f:t:n:T:ps" opt
 do
     case $opt in
         f)
