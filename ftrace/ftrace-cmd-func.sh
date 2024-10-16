@@ -12,6 +12,7 @@ FUNC=
 TRACE_LIST=()
 NOTRACE_LIST=()
 PID=0
+STACK=0
 TRACER=function
 while getopts ":f:t:n:T:p" opt
 do
@@ -26,6 +27,8 @@ do
             TRACER=$OPTARG;;
         p)
             PID=1;;
+        s)
+            STACK=1;;
         ?)
             exit 1;;
     esac
@@ -61,6 +64,7 @@ if [[ ${NOTRACE_LIST[@]} ]]; then
 fi
 
 echo 1 > $SYSFS_TRACE/options/funcgraph-tail
+echo $STACK > $SYSFS_TRACE/options/func_stack_trace
 
 # Enable trace and start running the command
 (sleep 5; $CMD) &
@@ -86,6 +90,7 @@ echo "Done. Please 'sudo cat $OUTPUT' for the result"
 echo > $SYSFS_TRACE/set_ftrace_pid
 echo 0 > $SYSFS_TRACE/options/funcgraph-tail
 echo 0 > $SYSFS_TRACE/options/function-fork
+echo 0 > $SYSFS_TRACE/options/func_stack_trace
 echo > $SYSFS_TRACE/set_ftrace_notrace
 echo > $SYSFS_TRACE/set_ftrace_filter
 echo > $SYSFS_TRACE/set_graph_function
