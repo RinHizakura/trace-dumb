@@ -65,6 +65,7 @@ fi
 
 echo 1 > $SYSFS_TRACE/options/funcgraph-tail
 echo $STACK > $SYSFS_TRACE/options/func_stack_trace
+echo latency-format > $SYSFS_TRACE/trace_options
 
 # Enable trace and start running the command
 (sleep 5; $CMD) &
@@ -88,6 +89,7 @@ echo "Done. Please 'sudo cat $OUTPUT' for the result"
 
 # Cleanup the change of ftrace
 echo > $SYSFS_TRACE/set_ftrace_pid
+echo nolatency-format > $SYSFS_TRACE/trace_options
 echo 0 > $SYSFS_TRACE/options/funcgraph-tail
 echo 0 > $SYSFS_TRACE/options/function-fork
 echo 0 > $SYSFS_TRACE/options/func_stack_trace
