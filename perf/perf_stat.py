@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 
-import argparse, re
-import pandas as pd
+import argparse
 import numpy as np
-
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -27,7 +25,7 @@ with open(input_file, "r") as file:
         items = re.split(r"\s+", l)
 
         ptid = items[0] + items[1]
-        func = re.search(r":\w+:", items[4])[0][1:-1]
+        func = items[4][6:-1]
         # Use us unit
         time = float(items[3][:-1]) * 10**6
 
