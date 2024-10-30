@@ -22,6 +22,14 @@ done
 shift $(($OPTIND - 1))
 CMD=$*
 
+if [[ -z $FUNC ]]; then
+    echo "Please specific the trace function by -f option"
+    exit 1
+fi
+
+# Remove all old probes
+perf probe --del "probe:*"
+
 perf probe --add $FUNC
 perf probe --add "${FUNC}%return"
 perf record -e probe:${FUNC}* $CMD
