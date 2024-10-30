@@ -41,4 +41,5 @@ with open(input_file, "r") as file:
 data = np.array(data)
 
 # Show stat on the target CPU
+print(f"Totol data={len(data)}us, total time={np.sum(data)}us")
 print(f"min={np.min(data)}us, mean={np.mean(data)}us, max={np.max(data)}us")
