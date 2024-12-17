@@ -29,5 +29,5 @@ CPID=$!
 
 echo "Run command '$CMD'(ppid=$$ pid=$CPID) and enable tracing..."
 wait $CPID
-wait $TPID
+kill -INT $TPID
 echo "Done!"
