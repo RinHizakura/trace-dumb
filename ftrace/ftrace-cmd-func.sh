@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 
+function try_write()
+{
+    FILE_PATH=$1
+    CONTENT=$2
+
+    !(test -d $FILE_PATH) && echo $CONTENT > $FILE_PATH
+}
+
 SYSFS_TRACE=/sys/kernel/debug/tracing
 OUTPUT=/tmp/trace_log
 
@@ -63,7 +71,8 @@ if [[ ${NOTRACE_LIST[@]} ]]; then
     done
 fi
 
-echo 1 > $SYSFS_TRACE/options/funcgraph-tail
+try_write $SYSFS_TRACE/options/funcgraph-tail 1
+try_write $SYSFS_TRACE/options/funcgraph-retval 1
 echo $STACK > $SYSFS_TRACE/options/func_stack_trace
 echo latency-format > $SYSFS_TRACE/trace_options
 
@@ -89,10 +98,6 @@ echo "Done. Please 'sudo cat $OUTPUT' for the result"
 
 # Cleanup the change of ftrace
 echo > $SYSFS_TRACE/set_ftrace_pid
-echo nolatency-format > $SYSFS_TRACE/trace_options
-echo 0 > $SYSFS_TRACE/options/funcgraph-tail
-echo 0 > $SYSFS_TRACE/options/function-fork
-echo 0 > $SYSFS_TRACE/options/func_stack_trace
 echo > $SYSFS_TRACE/set_ftrace_notrace
 echo > $SYSFS_TRACE/set_ftrace_filter
 echo > $SYSFS_TRACE/set_graph_function
