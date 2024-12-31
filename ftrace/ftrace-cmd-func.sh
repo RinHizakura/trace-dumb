@@ -5,7 +5,7 @@ function try_write()
     FILE_PATH=$1
     CONTENT=$2
 
-    !(test -d $FILE_PATH) && echo $CONTENT > $FILE_PATH
+    ls $FILE_PATH >> /dev/null 2>&1 && echo $CONTENT > $FILE_PATH
 }
 
 SYSFS_TRACE=/sys/kernel/debug/tracing
