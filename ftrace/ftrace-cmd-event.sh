@@ -4,18 +4,26 @@ set -e
 SYSFS_TRACE=/sys/kernel/debug/tracing
 OUTPUT=/tmp/trace_log
 
+function enable_event()
+{
+    EVENT=$1
+    echo write enable to $SYSFS_TRACE/events/$EVENT/enable
+    echo 1 > $SYSFS_TRACE/events/$EVENT/enable
+}
+
 if [[ $EUID -ne 0 ]]; then
     echo "This script must be run as root user."
     exit 1
 fi
 
 EVENT=$SYSFS_TRACE/events
+EVENT_LIST=()
 PID=0
 while getopts ":e:p" opt
 do
     case $opt in
         e)
-            EVENT=$SYSFS_TRACE/events/$OPTARG;;
+            EVENT_LIST+=("$OPTARG");;
         p)
             PID=1;;
         ?)
@@ -33,8 +41,17 @@ echo 0 > $SYSFS_TRACE/trace
 echo 0 > $SYSFS_TRACE/events/enable
 echo 0 > $SYSFS_TRACE/tracing_on
 
+if [[ ${EVENT_LIST[@]} ]]; then
+    for ev in ${EVENT_LIST[@]}; do
+        echo Enable event $ev
+        enable_event $ev
+    done
+else
+    echo Enable all events
+    enable_event ""
+fi
+
 # Choose the tracer with target setting
-echo 1 >  $EVENT/enable
 echo event-fork > $SYSFS_TRACE/trace_options
 echo latency-format > $SYSFS_TRACE/trace_options
 echo nop > $SYSFS_TRACE/current_tracer
@@ -61,6 +78,4 @@ echo "Done. Please 'sudo cat $OUTPUT' for the result"
 # Cleanup the change of ftrace
 echo > $SYSFS_TRACE/set_event_pid
 echo nop > $SYSFS_TRACE/current_tracer
-echo nolatency-format > $SYSFS_TRACE/trace_options
-echo noevent-fork > $SYSFS_TRACE/trace_options
-echo 0 >  $EVENT/enable
+echo 0 > $SYSFS_TRACE/events/enable
