@@ -8,6 +8,21 @@ function try_write()
     ls $FILE_PATH >> /dev/null 2>&1 && echo $CONTENT > $FILE_PATH
 }
 
+function print_help()
+{
+    usage="$(basename "$0") [-h] [-f func] [-t trace] [-n notrace] [-T tracer] [-p] [-s]  \n
+where:                                                                                    \n
+    -h  show this help text                                                               \n
+    -f  select the function if using funcgraph tracer                                     \n
+    -t  select the filter for function to be traced                                       \n
+    -n  select the filter for function to not be traced                                   \n
+    -T  select the tracer                                                                 \n
+    -p  trace only the run command and its childs' PID                                    \n
+    -s  show stack trace for the trace"
+
+    echo -e $usage
+}
+
 SYSFS_TRACE=/sys/kernel/debug/tracing
 OUTPUT=/tmp/trace_log
 
@@ -22,7 +37,7 @@ NOTRACE_LIST=()
 PID=0
 STACK=0
 TRACER=function
-while getopts ":f:t:n:T:ps" opt
+while getopts ":f:t:n:T:psh" opt
 do
     case $opt in
         f)
@@ -37,14 +52,20 @@ do
             PID=1;;
         s)
             STACK=1;;
+        h)
+            print_help; exit 0;;
         ?)
-            exit 1;;
+            print_help; exit 1;;
     esac
 done
 
 shift $(($OPTIND - 1))
 CMD=$*
 
+if [ "$CMD" == "" ]; then
+    print_help
+    exit 1
+fi
 
 # Clean the trace buffer at start
 echo 0 > $SYSFS_TRACE/trace

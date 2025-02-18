@@ -11,6 +11,17 @@ function enable_event()
     echo 1 > $SYSFS_TRACE/events/$EVENT/enable
 }
 
+function print_help()
+{
+    usage="$(basename "$0") [-h] [-e event] [-p]       \n
+where:                                                 \n
+    -h  show this help text                            \n
+    -e  select the event for ftrace                    \n
+    -p  trace only the run command and its childs' PID"
+
+    echo -e $usage
+}
+
 if [[ $EUID -ne 0 ]]; then
     echo "This script must be run as root user."
     exit 1
@@ -19,20 +30,27 @@ fi
 EVENT=$SYSFS_TRACE/events
 EVENT_LIST=()
 PID=0
-while getopts ":e:p" opt
+while getopts ":e:ph" opt
 do
     case $opt in
         e)
             EVENT_LIST+=("$OPTARG");;
         p)
             PID=1;;
+        h)
+            print_help; exit 0;;
         ?)
-            exit 1;;
+            print_help; exit 1;;
     esac
 done
 
 shift $(($OPTIND - 1))
 CMD=$*
+
+if [ "$CMD" == "" ]; then
+    print_help
+    exit 1
+fi
 
 # Clean the trace buffer at start
 echo 0 > $SYSFS_TRACE/trace
