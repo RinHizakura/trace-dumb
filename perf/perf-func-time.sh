@@ -29,10 +29,10 @@ fi
 
 # Remove all old probes
 perf probe --del "probe:*"
-
 perf probe --add $FUNC
 perf probe --add "${FUNC}%return"
-perf record -e probe:${FUNC}* $CMD
+
+perf record -F 99 -e probe:${FUNC}* -aR $CMD
 # Output result
 perf script -F "comm,pid,tid,cpu,time,event" > $OUTPUT
 echo "Done. Please 'sudo cat $OUTPUT' for the result"
