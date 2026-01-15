@@ -12,10 +12,13 @@ where:                                                 \n
     echo -e $usage
 }
 
-if [[ $EUID -ne 0 ]]; then
-    echo "This script must be run as root user."
-    exit 1
-fi
+function check_command()
+{
+    command -v $1 >/dev/null 2>&1 || { echo >&2 "This script requires $1 but it's not installed. Aborting."; exit 1; }
+}
+check_command blktrace
+check_command blkparse
+check_command btt
 
 while getopts ":d:h" opt
 do
@@ -33,6 +36,7 @@ shift $(($OPTIND - 1))
 CMD=$*
 
 if [ "$CMD" == "" ]; then
+    echo "Please provide a command to run."
     print_help
     exit 1
 fi
@@ -43,21 +47,29 @@ if [ -z $DEV ]; then
     exit 1
 fi
 
-BLKTRACE_CMD="blktrace -d $DEV -o blktrace_out"
+if [[ $EUID -ne 0 ]]; then
+    echo "This script must be run as root user."
+    exit 1
+fi
 
-echo Run: $CMD
-$CMD &
-CPID=$!
+OUTPUT_DIR="blktrace_output"
+rm -rf $OUTPUT_DIR/*
+mkdir -p $OUTPUT_DIR
 
-echo Run: $BLKTRACE_CMD
+BLKTRACE_OUT="$OUTPUT_DIR/blktrace_out"
+BLKTRACE_BIN="$OUTPUT_DIR/blktrace.bin"
+
+BLKTRACE_CMD="blktrace -d $DEV -o $BLKTRACE_OUT"
+echo "Starting running blktrace: $BLKTRACE_CMD"
+echo "Running command: $CMD"
 $BLKTRACE_CMD &
 BPID=$!
-
-wait $CPID
-
+$CMD
+kill -INT $BPID
 echo "Complete I/O operation. Stop blktrace."
-sudo kill -INT $BPID
 
-echo "Check blktrace_summary.log for the result."
-blkparse -i blktrace_out -o /dev/null -d blktrace.bin
-btt -i blktrace.bin > blktrace_summary.log
+BLKPARSE_CMD="blkparse -i $BLKTRACE_OUT -o - -d $BLKTRACE_BIN"
+BTT_CMD="btt -i $BLKTRACE_BIN"
+$BLKPARSE_CMD
+$BTT_CMD > "$OUTPUT_DIR/btt_report.txt"
+echo "Blktrace and BTT reports are saved in $OUTPUT_DIR"
