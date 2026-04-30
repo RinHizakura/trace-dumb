@@ -27,6 +27,11 @@ if [[ -z $FUNC ]]; then
     exit 1
 fi
 
+if [[ -z $CMD ]]; then
+    echo "Please specific the command to run"
+    exit 1
+fi
+
 # Remove all old probes
 perf probe --del "probe:*"
 perf probe --add $FUNC
